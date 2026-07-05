@@ -1,0 +1,14 @@
+model User {
+  id           String          @id @default(ulid())
+  name         String
+  email        String          @unique
+  password     String
+  role         Role            @default(USER)
+  profilePhoto String?
+  activeStatus ActiveStatus    @default(ACTIVE)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  properties   Property[]
+  requests     RentalRequest[]
+  Reviews      Review[]
+}

@@ -1,0 +1,10 @@
+model RentalRequest {
+  id            String   @id @default(uuid())
+  status        Status   @default(PENDING)
+  rentStartDate DateTime @db.Timestamp()
+  rentEndDate   DateTime @db.Timestamp()
+  propertyId    String
+  property      Property @relation(fields: [propertyId], references: [id])
+  clientId      String
+  client        User     @relation(fields: [clientId], references: [id])
+}

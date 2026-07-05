@@ -1,0 +1,10 @@
+model Review {
+  id         String   @id @default(uuid())
+  rating     Int
+  comment    String
+  createdAt  DateTime @db.Timestamp()
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+  clientId   String
+  client     User     @relation(fields: [clientId], references: [id])
+}

@@ -1,17 +1,15 @@
-// import { prisma } from "../../lib/prisma";
-// import { PropertyPayload } from "./Properties.interface";
+import { prisma } from "../../lib/prisma";
+import { PropertyPayload } from "./Properties.interface";
 
-// const getPropertiesIntoDB = async (payload: PropertyPayload) => {
-//   const { title, location, categoryId, description, amenities } = payload;
+const getPropertiesIntoDB = async () => {
+  
 
-//   const createdProperties = await prisma.property.create({
-//     data : {
-//       title, location, categoryId, description, 
-//     }
-//   })
-//   return createdProperties;
-// };
+  const createdProperties = await prisma.property.findMany({
+    
+  })
+  return createdProperties;
+};
 
-// export const PropertiesServices = {
-//   getPropertiesIntoDB,
-// };
+export const PropertiesServices = {
+  getPropertiesIntoDB,
+};

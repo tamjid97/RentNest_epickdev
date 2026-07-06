@@ -1,11 +1,11 @@
-// import { Router } from "express";
-// import { PropertiesController } from "./Properties.controller";
+import { Router } from "express";
+import { PropertiesController } from "./Properties.controller";
 
-// const router = Router();
-
-
-
-// router.get("/properties", PropertiesController.getProperties)
+const router = Router();
 
 
-// export const PropertiesRouter = router;
+
+router.get("/properties", PropertiesController.getProperties)
+
+
+export const PropertiesRouter = router;

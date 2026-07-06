@@ -6,6 +6,7 @@ import cors from "cors"
 
 import { LandlordManagementRouter } from "./modules/LandlordManagement/LandlordManagement.route";
 import { RentalRequestRouter } from "./modules/rentalRequests/rentalRequests.route";
+import { PropertiesRouter } from "./modules/Properties/Properties.route";
 
 
 const app : Application = express();
@@ -36,5 +37,7 @@ app.use("/api/auth",authRoutes)
 app.use("/api/landlord", LandlordManagementRouter);
 
 app.use("/api/rentals", RentalRequestRouter)
+
+app.use("/api", PropertiesRouter)
 
 export default app;

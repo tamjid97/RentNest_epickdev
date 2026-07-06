@@ -1,24 +1,24 @@
-// import { NextFunction, Request, Response } from "express";
-// import { catchAsync } from "../../utils/catchAsync";
-// import { PropertiesServices } from "./Properties.service";
-// import { sendResponse } from "../../utils/sendRespons.";
-// import  httpStatus  from "http-status";
+import { NextFunction, Request, Response } from "express";
+import { catchAsync } from "../../utils/catchAsync";
+import { PropertiesServices } from "./Properties.service";
+import { sendResponse } from "../../utils/sendRespons.";
+import  httpStatus  from "http-status";
 
 
 
-// const getProperties = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
-// const payload = req.body
-// const properties = await PropertiesServices.getPropertiesIntoDB(payload);
+const getProperties = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
 
-// sendResponse(res, {
-//       success: true,
-//       statusCode: httpStatus.CREATED,
-//       message: "User registered successfully",
-//       data: properties
-//     });
-// })
+const properties = await PropertiesServices.getPropertiesIntoDB();
+
+sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Properties retrieved successfully",
+      data: properties
+    });
+})
 
 
-// export const PropertiesController = {
-// getProperties,
-// }
+export const PropertiesController = {
+getProperties,
+}

@@ -56,7 +56,7 @@ const jwtPayload = {
 
 
     const refreshToken = jwtUtils.createToken(
-    jwtUtils, 
+    jwtPayload, 
     config.jwt_refresh_secret, 
     config.jwt_refresh_expires_in as SignOptions);
 return {
@@ -66,7 +66,20 @@ return {
 }
 
 
+const getMeIntoBD = async(userId : string) => {
+const user = await prisma.user.findFirstOrThrow({
+        where : {id : userId},
+        omit : {
+            password : true
+        },
+        
+    });
+
+    return user;
+}
+
 export const authService = {
     registerUserIntoDB,
-    loginUserIntiBD
+    loginUserIntiBD,
+    getMeIntoBD
 }

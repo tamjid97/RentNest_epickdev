@@ -58,8 +58,57 @@ const property = await prisma.property.delete({
 return property
 }
 
+
+const getLandlordRequestsFromDB = async (landlordId: string) => {
+  const result = await prisma.rentalRequest.findMany({
+    where: {
+      property: {
+        landlordId: landlordId, 
+      },
+    },
+    include: {
+      property: true, 
+      client: {
+        select: {      
+          id: true,
+          name: true,
+          email: true,
+          profilePhoto: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
+
+const updateRequestStatusInDB = async (requestId: string, status: string, landlordId: string) => {
+  
+  const requestDetails = await prisma.rentalRequest.findUnique({
+    where: { id: requestId },
+    include: { property: true },
+  });
+
+  if (!requestDetails || requestDetails.property.landlordId !== landlordId) {
+    throw new Error("Unauthorized! You do not own this property.");
+  }
+
+  
+  const result = await prisma.rentalRequest.update({
+    where: {
+      id: requestId,
+    },
+    data: {
+      status: status as any, 
+    },
+  });
+  return result;
+};
+
 export const LandlordManagementServices = {
   createProperty,
   getPropertyById,
-  deleteById
+  deleteById,
+  getLandlordRequestsFromDB,
+  updateRequestStatusInDB
 }

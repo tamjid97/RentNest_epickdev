@@ -62,8 +62,45 @@ const deleteByIdIntoDB = catchAsync(async(req: Request, res: Response, next: Nex
 });
 
 
+const getLandlordRequests = catchAsync(async (req: Request, res: Response) => {
+  const landlordId = (req.user as any).id;
+
+  const result = await LandlordManagementServices.getLandlordRequestsFromDB(landlordId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Rental requests retrieved successfully",
+    data: result,
+  });
+});
+
+
+const updateRequestStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params; 
+  const { status } = req.body; 
+  const landlordId = (req.user as any).id;
+
+  const result = await LandlordManagementServices.updateRequestStatusInDB(
+    id as string,
+    status,
+    landlordId
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Rental request ${status.toLowerCase()} successfully`,
+    data: result,
+  });
+});
+
+
+
 export const LandlordManagementController = {
   createPropertyIntoDB,
   getPropertyByIdIntoDB,
   deleteByIdIntoDB,
+  getLandlordRequests,
+  updateRequestStatus
 };

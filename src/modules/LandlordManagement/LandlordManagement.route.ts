@@ -9,4 +9,9 @@ router.post("/properties", auth(), LandlordManagementController.createPropertyIn
 router.put("/properties/:id", auth(), LandlordManagementController.getPropertyByIdIntoDB);
 router.delete("/properties/:id",auth(), LandlordManagementController.deleteByIdIntoDB)
 
+router.get("/requests", auth("LANDLORD"), LandlordManagementController.getLandlordRequests);
+
+
+router.patch("/requests/:id", auth("LANDLORD"), LandlordManagementController.updateRequestStatus);
+
 export const LandlordManagementRouter = router;

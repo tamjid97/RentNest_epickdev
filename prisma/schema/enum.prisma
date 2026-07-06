@@ -1,5 +1,4 @@
 enum Role {
-  USER
   TENANT
   LANDLORD
   ADMIN

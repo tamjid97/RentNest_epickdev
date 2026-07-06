@@ -5,9 +5,11 @@ import config from "./config";
 import cors from "cors"
 
 import { LandlordManagementRouter } from "./modules/LandlordManagement/LandlordManagement.route";
+import { RentalRequestRouter } from "./modules/rentalRequests/rentalRequests.route";
 
 
 const app : Application = express();
+
 
 
 // midelyer 
@@ -32,5 +34,7 @@ app.get('/', (req : Request, res : Response) => {
 app.use("/api/auth",authRoutes)
 
 app.use("/api/landlord", LandlordManagementRouter);
+
+app.use("/api/rentals", RentalRequestRouter)
 
 export default app;

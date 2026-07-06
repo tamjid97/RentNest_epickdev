@@ -40,7 +40,26 @@ if (!result) {
   return result
 }
 
+const deleteById = async(id : string)=>{
+const deleteProperty = await prisma.property.findUniqueOrThrow({
+  where : {
+    id : id
+  },
+  select: {
+            id: true
+        }
+})
+
+const property = await prisma.property.delete({
+  where:{
+    id : deleteProperty.id
+  }
+})
+return property
+}
+
 export const LandlordManagementServices = {
   createProperty,
-  getPropertyById
+  getPropertyById,
+  deleteById
 }

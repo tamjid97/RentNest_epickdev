@@ -7,6 +7,10 @@ import cors from "cors"
 import { LandlordManagementRouter } from "./modules/LandlordManagement/LandlordManagement.route";
 import { RentalRequestRouter } from "./modules/rentalRequests/rentalRequests.route";
 import { PropertiesRouter } from "./modules/Properties/Properties.route";
+import { AdminManagementRouter } from "./modules/Admin/admin.route";
+import { auth } from "./middlewares/auth";
+import { Role } from "../generated/prisma/enums";
+import { CategoryRoutes } from "./modules/Category/Category.route";
 
 
 const app : Application = express();
@@ -34,10 +38,14 @@ app.get('/', (req : Request, res : Response) => {
 
 app.use("/api/auth",authRoutes)
 
-app.use("/api/landlord", LandlordManagementRouter);
+app.use("/api/landlord", auth(Role.LANDLORD), LandlordManagementRouter);
 
 app.use("/api/rentals", RentalRequestRouter)
 
 app.use("/api", PropertiesRouter)
+
+app.use("/api/admin", AdminManagementRouter);
+
+app.use("/api/categories", CategoryRoutes);
 
 export default app;

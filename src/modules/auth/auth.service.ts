@@ -8,6 +8,11 @@ import { SignOptions } from "jsonwebtoken";
 
 const registerUserIntoDB = async(payload : RegisterUserPayload ) =>{
 const { name, email, password, profilePhoto, role } = payload;
+
+if (payload.role === 'ADMIN') {
+    throw new Error("You are not authorized to create an Admin account! ");
+    }
+    
 const isUserExist = await prisma.user.findUnique({
         where: { email }
     })
@@ -15,6 +20,8 @@ const isUserExist = await prisma.user.findUnique({
     if (isUserExist) {
         throw new Error("User with this email already exists");
     }
+
+
 
     const hashedPassword = await bcrypt.hash(password, Number(config.bcrypt_salt_rounds))
 

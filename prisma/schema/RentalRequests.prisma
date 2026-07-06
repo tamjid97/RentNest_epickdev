@@ -3,6 +3,8 @@ model RentalRequest {
   status        Status   @default(PENDING)
   rentStartDate DateTime @db.Timestamp()
   rentEndDate   DateTime @db.Timestamp()
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   propertyId    String
   property      Property @relation(fields: [propertyId], references: [id])
   clientId      String

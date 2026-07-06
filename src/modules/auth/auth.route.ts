@@ -10,6 +10,6 @@ const router = Router();
 
 router.post("/register", AuthController.createRegisterUser)
 router.post("/login", AuthController.loginUser)
-router.get("/me", auth(Role.ADMIN,Role.LANDLORD,Role.TENANT,Role.USER) ,AuthController.getMe)
+router.get("/me", auth(Role.ADMIN,Role.LANDLORD,Role.TENANT) ,AuthController.getMe)
 
 export const authRoutes = router;

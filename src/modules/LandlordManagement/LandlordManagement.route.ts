@@ -5,13 +5,13 @@ import { auth } from "../../middlewares/auth";
 const router = Router();
 
 
-router.post("/properties", auth(), LandlordManagementController.createPropertyIntoDB);
-router.put("/properties/:id", auth(), LandlordManagementController.getPropertyByIdIntoDB);
-router.delete("/properties/:id",auth(), LandlordManagementController.deleteByIdIntoDB)
+router.post("/properties",  LandlordManagementController.createPropertyIntoDB);
+router.put("/properties/:id",  LandlordManagementController.getPropertyByIdIntoDB);
+router.delete("/properties/:id", LandlordManagementController.deleteByIdIntoDB)
 
-router.get("/requests", auth("LANDLORD"), LandlordManagementController.getLandlordRequests);
+router.get("/requests",  LandlordManagementController.getLandlordRequests);
 
 
-router.patch("/requests/:id", auth("LANDLORD"), LandlordManagementController.updateRequestStatus);
+router.patch("/requests/:id",  LandlordManagementController.updateRequestStatus);
 
 export const LandlordManagementRouter = router;

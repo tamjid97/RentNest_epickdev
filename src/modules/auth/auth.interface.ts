@@ -6,3 +6,9 @@ export interface RegisterUserPayload {
   profilePhoto? : string;
   
 }
+
+
+export interface ILoginUser {
+  email : string;
+  password :string;
+}

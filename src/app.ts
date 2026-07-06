@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import config from "./config";
 import cors from "cors"
 
+import { LandlordManagementRouter } from "./modules/LandlordManagement/LandlordManagement.route";
+
 
 const app : Application = express();
 
@@ -28,5 +30,7 @@ app.get('/', (req : Request, res : Response) => {
 
 
 app.use("/api/auth",authRoutes)
+
+app.use("/api/landlord", LandlordManagementRouter);
 
 export default app;

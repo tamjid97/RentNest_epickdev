@@ -4,7 +4,7 @@ import { prisma } from "../../lib/prisma";
 
 
 const postRentalRequestIntoDB = async (payload: any, clientId: string) => {
-  console.log("সার্ভিস ফাংশন শুরু হয়েছে..."); // এটি আসে কি না দেখো
+  
   
   const { propertyId, rentStartDate, rentEndDate } = payload;
   
@@ -17,21 +17,39 @@ const postRentalRequestIntoDB = async (payload: any, clientId: string) => {
         rentEndDate: new Date(rentEndDate),
       },
     });
-    console.log("ডাটাবেসে সেভ হয়েছে:", result); // এটি আসে কি না দেখো
+    
     return result;
   } catch (error) {
-    console.error("ডাটাবেস এরর:", error); // যদি এরর থাকে তবে এখানে ধরা পড়বে
+    
     throw error;
   }
 };
 
 
-const getRentalRequestIntoDB = async()=>{
+const getRentalRequestIntoDB = async (clientId: string) => {
+  const result = await prisma.rentalRequest.findMany({
+    where: {
+      clientId: clientId, 
+    },
+    include: {
+      property: true,
+    },
+  });
+  return result;
+};
 
-}
-const getRentalRequestDetailsIntoDB = async()=>{
-
-}
+const getRentalRequestDetailsIntoDB = async (id: string) => {
+  const result = await prisma.rentalRequest.findUnique({
+    where: { id },
+    include: {
+      property: true, 
+      client: {
+        omit: { password: true } 
+      },   
+    },
+  });
+  return result;
+};
 
 export const RentalRequestServices = {
 postRentalRequestIntoDB,

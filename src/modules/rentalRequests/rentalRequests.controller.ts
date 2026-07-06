@@ -23,13 +23,45 @@ const postRentalRequest = catchAsync(async (req: Request, res: Response, next: N
 });
 
 
-const getRentalRequest = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
+const getRentalRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  
+  const clientId = req.user?.id;
 
-})
+  if (!clientId) {
+    throw new Error("User not authorized");
+  }
 
-const getRentalRequestDetails = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
+  
+  const result = await RentalRequestServices.getRentalRequestIntoDB(clientId);
 
-})
+  
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Rental requests retrieved successfully",
+    data: result,
+  });
+});
+
+const getRentalRequestDetails = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params; 
+
+  const result = await RentalRequestServices.getRentalRequestDetailsIntoDB(id as string);
+
+  if (!result) {
+    return res.status(404).json({
+      success: false,
+      message: "Rental request not found!",
+    });
+  }
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Rental request details retrieved successfully",
+    data: result,
+  });
+});
 
 export const RentalRequestController = {
   postRentalRequest,

@@ -13,7 +13,9 @@ import { Role } from "../generated/prisma/enums";
 import { CategoryRoutes } from "./modules/Category/Category.route";
 import { notFound } from "./middlewares/notFound";
 import  httpStatus  from "http-status";
- 
+import { globalErrorHandler } from "./middlewares/globalErrorHandler";
+
+
 
 const app : Application = express();
 
@@ -53,14 +55,6 @@ app.use("/api/categories", CategoryRoutes);
 
 app.use(notFound)
 
-app.use((err : any , req : Request, res : Response, next : NextFunction) => {
-  console.log(err);
-res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-        message: err.message,
-        error: err.stack
-      });
-})
+app.use(globalErrorHandler)
 
 export default app;

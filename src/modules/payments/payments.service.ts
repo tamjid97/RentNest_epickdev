@@ -76,13 +76,14 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
         const event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
 
         if (event.type === 'checkout.session.completed') {
-            await handlePaymentCompleted(event.data.object);
+            // পেমেন্ট সেশন কমপ্লিট হলে এটি রান করবে
+            await handlePaymentCompleted(event.data.object as any);
         } else {
             console.log(`Unhandled event type ${event.type}.`);
         }
     } catch (err: any) {
-        console.error(`⚠️ Webhook signature verification failed:`, err.message);
-        throw new Error(`Webhook Error: ${err.message}`);
+        console.error(`⚠️ Webhook error:`, err.message);
+        throw err; // এখানে এররটি থ্রো করলে এক্সপ্রেসের গ্লোবাল এরর হ্যান্ডলার সেটি ধরবে
     }
 };
 

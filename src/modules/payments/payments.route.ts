@@ -12,12 +12,7 @@ router.post(
     paymentController.createCheckoutSession
 );
 
-// ২. স্ট্রাইপ ওয়েব হুক (এখানে express.raw মিডলওয়্যার যুক্ত করা হয়েছে)
-router.post(
-    "/webhook", 
-    express.raw({ type: "application/json" }), 
-    paymentController.handleWebhook
-);
+// ⚠️ ওয়েব হুক এখান থেকে সরিয়ে সরাসরি app.ts এ নিয়ে যাওয়া হয়েছে!
 
 // ৩. লগইন থাকা ইউজারের সব পেমেন্ট হিস্ট্রি দেখতে
 router.get(

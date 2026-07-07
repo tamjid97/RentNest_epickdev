@@ -10,6 +10,7 @@ export const handlePaymentCompleted = async (session: Stripe.Checkout.Session) =
         return;
     }
 
+    // 🔥 এখানে টাইমআউট অপশনগুলো যোগ করে দিলাম
     await prisma.$transaction(async (tx) => {
         // ১. পেমেন্ট স্ট্যাটাস COMPLETED করা
         await tx.payment.update({
@@ -28,6 +29,9 @@ export const handlePaymentCompleted = async (session: Stripe.Checkout.Session) =
                 status: "ACTIVE" 
             }
         });
+    }, {
+        maxWait: 10000, // ডাটাবেসের জন্য ১০ সেকেন্ড অপেক্ষা করবে
+        timeout: 20000  // ট্রানজেকশনের জন্য ২০ সেকেন্ড সময় পাবে
     });
 
     console.log(`Payment successfully completed for Rental Request: ${rentalRequestId}`);

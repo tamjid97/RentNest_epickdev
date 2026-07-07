@@ -7,7 +7,7 @@ import { sendResponse } from "../../utils/sendRespons.";
 
 const createCheckoutSession = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        const { rentalRequestId } = req.body; // বডি থেকে রেন্টাল রিকোয়েস্ট আইডি আসবে
+        const { rentalRequestId } = req.body; 
 
         const result = await paymentServices.createCheckoutSession(rentalRequestId);
 

@@ -18,6 +18,7 @@ import { PaymentRoutes } from "./modules/payments/payments.route";
 
 
 
+
 const app : Application = express();
 
 
@@ -53,7 +54,7 @@ app.use("/api/admin", AdminManagementRouter);
 
 app.use("/api/categories", CategoryRoutes);
 
-app.use("/api/payment", PaymentRoutes)
+app.use("/api/payments", PaymentRoutes)
 
 
 app.use(notFound)

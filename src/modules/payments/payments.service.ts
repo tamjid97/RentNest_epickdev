@@ -1,7 +1,6 @@
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
-import httpStatus from "http-status";
 import { handlePaymentCompleted } from "./payments.utils";
 
 const createCheckoutSession = async (rentalRequestId: string) => {
@@ -12,7 +11,7 @@ const createCheckoutSession = async (rentalRequestId: string) => {
             where: { id: rentalRequestId },
             include: { 
                 property: true,
-                client: true // 🔥 তোমার স্কিমা অনুযায়ী 'tenant' পরিবর্তন করে 'client' করা হলো
+                client: true 
             }
         });
 
@@ -24,6 +23,9 @@ const createCheckoutSession = async (rentalRequestId: string) => {
         if (rentalRequest.property.price === null || rentalRequest.property.price === undefined) {
             throw new Error("Property price is not defined. Cannot proceed with payment.");
         }
+
+        // 🔥 config.app_url undefined থাকলে যেন এরর না দেয়, তাই ফলব্যাক (Fallback) দেওয়া হলো
+        const baseUrl = config.app_url || "http://localhost:3000";
 
         // ২. স্ট্রাইপ চেকআউট সেশন তৈরি (One-time Payment Mode)
         const session = await stripe.checkout.sessions.create({
@@ -41,9 +43,10 @@ const createCheckoutSession = async (rentalRequestId: string) => {
                 }
             ],
             mode: "payment",
-            customer_email: rentalRequest.client.email, // 🔥 অসম্পূর্ণ কোডটি ফিক্স করে 'client.email' বসানো হলো
-            success_url: `${config.app_url}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${config.app_url}/payment/cancel`,
+            customer_email: rentalRequest.client.email, 
+            // 🔥 Fallback URL ব্যবহার করা হলো
+            success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${baseUrl}/payment/cancel`,
             metadata: { 
                 rentalRequestId: rentalRequest.id 
             }
@@ -73,15 +76,21 @@ const createCheckoutSession = async (rentalRequestId: string) => {
 };
 
 const handleWebhook = async (payload: Buffer, signature: string) => {
-    // 🔥 সিগনেচার চেক করার জন্য 'stripe_secret_key' এর বদলে 'stripe_webhook_secret' ব্যবহার করা হলো
-    const endpointSecret = config.stripe_secret_key!;
-    const event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
+    const endpointSecret = config.stripe_webhook_secret as string;
+    
+    // 🔥 try-catch ব্লক যোগ করা হলো যাতে সিগনেচার ফেইল করলে সার্ভার ক্র্যাশ না করে
+    try {
+        const event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
 
-    // রেন্টাল পেমেন্টের জন্য শুধু এই একটি ইভেন্ট হ্যান্ডেল করলেই হবে
-    if (event.type === 'checkout.session.completed') {
-        await handlePaymentCompleted(event.data.object);
-    } else {
-        console.log(`Unhandled event type ${event.type}.`);
+        // রেন্টাল পেমেন্টের জন্য শুধু এই একটি ইভেন্ট হ্যান্ডেল করলেই হবে
+        if (event.type === 'checkout.session.completed') {
+            await handlePaymentCompleted(event.data.object);
+        } else {
+            console.log(`Unhandled event type ${event.type}.`);
+        }
+    } catch (err: any) {
+        console.error(`⚠️ Webhook signature verification failed:`, err.message);
+        throw new Error(`Webhook Error: ${err.message}`);
     }
 };
 

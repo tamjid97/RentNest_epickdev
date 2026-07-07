@@ -15,4 +15,4 @@ router.post(
 // স্ট্রাইপ ওয়েব হুক
 router.post("/webhook", paymentController.handleWebhook);
 
-export const PaymentRoutes = router;
+export const PaymentRoutes = router; 

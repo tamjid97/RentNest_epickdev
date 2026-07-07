@@ -94,7 +94,67 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
     }
 };
 
+
+// 🔥 ৩. ডাটাবেস থেকে ইউজারের রোল অনুযায়ী পেমেন্ট হিস্ট্রি তুলে আনা
+const getAllPaymentsFromDB = async (user: any) => {
+    const { userId, role } = user;
+
+    // যদি ইউজার ADMIN হয়, তবে সব পেমেন্ট দেখতে পাবে
+    if (role === 'ADMIN') {
+        return await prisma.payment.findMany({
+            include: { rentalRequest: { include: { property: true, client: true } } },
+            orderBy: { createdAt: "desc" }
+        });
+    }
+
+    // যদি ইউজার TENANT/CLIENT হয়, তবে শুধু তার নিজের করা পেমেন্টগুলো দেখবে
+    return await prisma.payment.findMany({
+        where: {
+            rentalRequest: {
+                clientId: userId // তোমার স্কিমা অনুযায়ী client/tenant আইডি ফিল্টার
+            }
+        },
+        include: {
+            rentalRequest: {
+                include: {
+                    property: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: "desc"
+        }
+    });
+};
+
+// 🔥 ৪. ডাটাবেস থেকে নির্দিষ্ট পেমেন্টের ডিটেইলস তুলে আনা
+const getPaymentByIdFromDB = async (id: string, user: any) => {
+    const { userId, role } = user;
+
+    const payment = await prisma.payment.findUniqueOrThrow({
+        where: { id },
+        include: {
+            rentalRequest: {
+                include: {
+                    property: true,
+                    client: true
+                }
+            }
+        }
+    });
+
+    // সিকিউরিটি চেক: ADMIN বাদে অন্য কেউ যেন অন্যের পেমেন্ট ডিটেইলস দেখতে না পারে
+    if (role !== 'ADMIN' && payment.rentalRequest.clientId !== userId) {
+        throw new Error("You are not authorized to view this payment details");
+    }
+
+    return payment;
+};
+
+// একদম শেষে export অবজেক্টে ফাংশন দুটো চপচাপ বসিয়ে দাও:
 export const paymentServices = {
     createCheckoutSession,
-    handleWebhook
+    handleWebhook,
+    getAllPaymentsFromDB, // 👈 যোগ করো
+    getPaymentByIdFromDB  // 👈 যোগ করো
 };

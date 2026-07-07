@@ -3,11 +3,11 @@ model Property {
   title       String
   description String?
   location    String
-  price         Int?
+  price       Int?
   amenities   String[]
   isAvailable IsAvailable     @default(AVAILABLE)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   categoryId  String
   category    Category        @relation(fields: [categoryId], references: [id])
   landlordId  String

@@ -1,10 +1,16 @@
 model Review {
-  id         String   @id @default(uuid())
-  rating     Int
-  comment    String
-  createdAt  DateTime @db.Timestamp()
+  id      String @id @default(uuid())
+  rating  Int // ১ থেকে ৫ এর মধ্যে রেটিং
+  comment String
+
+  // রিলেশন (কোন টেন্যান্ট রিভিউ দিয়েছে)
+  tenantId String
+  tenant   User   @relation(fields: [tenantId], references: [id])
+
+  // রিলেশন (কোন প্রপার্টির উপর রিভিউ)
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id])
-  clientId   String
-  client     User     @relation(fields: [clientId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

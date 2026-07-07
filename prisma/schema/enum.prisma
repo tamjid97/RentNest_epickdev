@@ -19,3 +19,14 @@ enum Status {
   APPROVED
   REJECTED
 }
+
+enum PaymentProvider {
+  STRIPE
+  SSLCOMMERZ
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}

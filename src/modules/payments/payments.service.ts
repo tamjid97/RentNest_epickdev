@@ -1,123 +1,91 @@
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
-import { handleChangeSubscription, handleCheckoutCompleted } from "./subscription.utils";
+import httpStatus from "http-status";
+import { handlePaymentCompleted } from "./payments.utils";
 
-const createCheckoutSession = async (userId : string) => {
+const createCheckoutSession = async (rentalRequestId: string) => {
     const transactionResult = await prisma.$transaction(async (tx) => {
-
-        const user = await tx.user.findUniqueOrThrow({
-            where : {
-                id : userId
-            },
-            include : {
-                subscription : true
+        
+        // ১. রেন্টাল রিকোয়েস্টটি ডাটাবেসে আছে কি না এবং এটি APPROVED কি না চেক করো
+        const rentalRequest = await tx.rentalRequest.findUniqueOrThrow({
+            where: { id: rentalRequestId },
+            include: { 
+                property: true,
+                client: true // 🔥 তোমার স্কিমা অনুযায়ী 'tenant' পরিবর্তন করে 'client' করা হলো
             }
-        })
+        });
 
-        //old subscriber
-        let stripeCustomerId = user.subscription?.stripeCustomerId;
-
-        if(!stripeCustomerId){
-            // new subscriber
-            const customer = await stripe.customers.create({
-                email: user.email,
-                name: user.name,
-                metadata: { userId: user.id }
-            })
-
-            stripeCustomerId = customer.id
+        if (rentalRequest.status !== "APPROVED") {
+            throw new Error("Rental request must be APPROVED to make a payment");
         }
 
+        // টাইপস্ক্রিপ্টের null/undefined এরর দূর করার জন্য টাইপ গার্ড চেক
+        if (rentalRequest.property.price === null || rentalRequest.property.price === undefined) {
+            throw new Error("Property price is not defined. Cannot proceed with payment.");
+        }
 
+        // ২. স্ট্রাইপ চেকআউট সেশন তৈরি (One-time Payment Mode)
         const session = await stripe.checkout.sessions.create({
-            line_items : [
+            line_items: [
                 {
-                    price: config.stripe_product_price_id,
-                    quantity : 1
+                    price_data: {
+                        currency: "bdt",
+                        product_data: {
+                            name: `Rental Payment for ${rentalRequest.property.title}`,
+                            description: `Location: ${rentalRequest.property.location}`,
+                        },
+                        unit_amount: rentalRequest.property.price * 100, 
+                    },
+                    quantity: 1,
                 }
             ],
-            mode : "subscription",
-            customer : stripeCustomerId,
-            payment_method_types : ["card"],
-            success_url : `${config.app_url}/premium?success=true`,
-            cancel_url: `${config.app_url}/payment?success=false`,
-            metadata : {userId : user.id}
-        })
+            mode: "payment",
+            customer_email: rentalRequest.client.email, // 🔥 অসম্পূর্ণ কোডটি ফিক্স করে 'client.email' বসানো হলো
+            success_url: `${config.app_url}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${config.app_url}/payment/cancel`,
+            metadata: { 
+                rentalRequestId: rentalRequest.id 
+            }
+        });
 
-        return session.url
+        // ৩. পেমেন্ট রেকর্ড ডাটাবেসে PENDING হিসেবে তৈরি/আপডেট করে রাখা
+        await tx.payment.upsert({
+            where: { rentalRequestId: rentalRequest.id },
+            create: {
+                amount: rentalRequest.property.price,
+                provider: "STRIPE",
+                status: "PENDING",
+                rentalRequestId: rentalRequest.id
+            },
+            update: {
+                amount: rentalRequest.property.price,
+                status: "PENDING"
+            }
+        });
+
+        return session.url;
     });
 
     return {
-        paymentUrl : transactionResult
+        paymentUrl: transactionResult
+    };
+};
+
+const handleWebhook = async (payload: Buffer, signature: string) => {
+    // 🔥 সিগনেচার চেক করার জন্য 'stripe_secret_key' এর বদলে 'stripe_webhook_secret' ব্যবহার করা হলো
+    const endpointSecret = config.stripe_secret_key!;
+    const event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
+
+    // রেন্টাল পেমেন্টের জন্য শুধু এই একটি ইভেন্ট হ্যান্ডেল করলেই হবে
+    if (event.type === 'checkout.session.completed') {
+        await handlePaymentCompleted(event.data.object);
+    } else {
+        console.log(`Unhandled event type ${event.type}.`);
     }
-}
+};
 
-
-const handleWebhook = async (payload : Buffer, signature : string) => {
-    const endpointSecret = config.stripe_webhook_secret
-    const event = stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        endpointSecret
-    );
-
-
-    // Handle the event
-    switch (event.type) {
-        case 'checkout.session.completed':
-        //Occurs when a Checkout Session has been successfully completed.
-        // event.data.object
-            await handleCheckoutCompleted(event.data.object)
-           
-            break;
-        case 'customer.subscription.updated':
-        //Occurs whenever a subscription changes (e.g., switching from one plan to another, or changing the status from trial to active).
-            await handleChangeSubscription(event.data.object)
-            break;
-
-            /*
-            To test this run this command in terminal 
-            stripe subscriptions cancel sub_1PsYourSubIdHere (paste existinmg subscribed sub id)
-            */
-
-        case 'customer.subscription.deleted':
-        //Occurs whenever a customer’s subscription ends
-            await handleChangeSubscription(event.data.object)
-            break;
-
-        /*
-       To test this run this command in terminal 
-       stripe subscriptions cancel sub_1PsYourSubIdHere (paste existinmg subscribed sub id)
-       */
-
-        default:
-            // Unexpected event type
-            console.log(`No events matched. Unhandled event type ${event.type}.`);
-            break;
-    }
-}
-
-const getSubscriptionStatus = async (userId : string) => {
-    const isSubscriptionExist = await prisma.subscription.findUniqueOrThrow({
-        where : {
-            userId
-        }
-    });
-
-    const isActive = isSubscriptionExist.status === "ACTIVE" && isSubscriptionExist.currentPeriodEnd && new Date(isSubscriptionExist.currentPeriodEnd) > new Date();
-
-    return {
-        status : isSubscriptionExist.status,
-        isSubscribed : isActive,
-        currentPeriodEnd : isSubscriptionExist.currentPeriodEnd
-    }
-}
-
-
-
-export const subscriptionServices = {
+export const paymentServices = {
     createCheckoutSession,
-    handleWebhook,
-    getSubscriptionStatus
-}
+    handleWebhook
+};

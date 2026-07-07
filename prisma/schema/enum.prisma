@@ -18,6 +18,9 @@ enum Status {
   PENDING
   APPROVED
   REJECTED
+  PAYMENT     
+  ACTIVE      
+  COMPLETED   
 }
 
 enum PaymentProvider {

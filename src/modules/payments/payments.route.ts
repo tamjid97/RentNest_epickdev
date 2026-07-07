@@ -3,22 +3,16 @@ import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middlewares/auth";
 import { paymentController } from "./payments.controller";
 
+const router = Router();
 
-const router = Router()
-
+// রেন্টাল পেমেন্ট সেশন তৈরি করতে (Tenant এর জন্য)
 router.post(
-    "/checkout", 
-    auth(Role.TENANT, Role.LANDLORD, Role.ADMIN),
+    "/create", 
+    auth(Role.TENANT), 
     paymentController.createCheckoutSession
-)
+);
 
-//cancel subscription
+// স্ট্রাইপ ওয়েব হুক
+router.post("/webhook", paymentController.handleWebhook);
 
-router.post("/webhook", paymentController.handleWebhook )
-
-
-router.get("/status", 
-    auth(Role.TENANT, Role.LANDLORD, Role.ADMIN),
-    paymentController.getSubscriptionStatus)
-
-export const PaymentRoutes = router
+export const PaymentRoutes = router;

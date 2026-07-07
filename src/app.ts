@@ -1,4 +1,4 @@
-import express,{ Application, Request, Response } from "express";
+import express,{ Application, NextFunction, Request, Response,  } from "express";
 import { authRoutes } from "./modules/auth/auth.route";
 import cookieParser from "cookie-parser";
 import config from "./config";
@@ -11,7 +11,9 @@ import { AdminManagementRouter } from "./modules/Admin/admin.route";
 import { auth } from "./middlewares/auth";
 import { Role } from "../generated/prisma/enums";
 import { CategoryRoutes } from "./modules/Category/Category.route";
-
+import { notFound } from "./middlewares/notFound";
+import  httpStatus  from "http-status";
+ 
 
 const app : Application = express();
 
@@ -47,5 +49,18 @@ app.use("/api", PropertiesRouter)
 app.use("/api/admin", AdminManagementRouter);
 
 app.use("/api/categories", CategoryRoutes);
+
+
+app.use(notFound)
+
+app.use((err : any , req : Request, res : Response, next : NextFunction) => {
+  console.log(err);
+res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+        error: err.stack
+      });
+})
 
 export default app;

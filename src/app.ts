@@ -15,6 +15,7 @@ import { notFound } from "./middlewares/notFound";
 import  httpStatus  from "http-status";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { PaymentRoutes } from "./modules/payments/payments.route";
+import { ReviewRoutes } from "./modules/reviews/reviews.routes";
 
 
 
@@ -55,6 +56,8 @@ app.use("/api/admin", AdminManagementRouter);
 app.use("/api/categories", CategoryRoutes);
 
 app.use("/api/payments", PaymentRoutes)
+
+app.use("/reviews", ReviewRoutes)
 
 
 app.use(notFound)

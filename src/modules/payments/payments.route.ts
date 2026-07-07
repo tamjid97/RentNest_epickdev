@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middlewares/auth";
 import { paymentController } from "./payments.controller";
@@ -12,17 +12,21 @@ router.post(
     paymentController.createCheckoutSession
 );
 
-// ২. স্ট্রাইপ ওয়েব হুক
-router.post("/webhook", paymentController.handleWebhook);
+// ২. স্ট্রাইপ ওয়েব হুক (এখানে express.raw মিডলওয়্যার যুক্ত করা হয়েছে)
+router.post(
+    "/webhook", 
+    express.raw({ type: "application/json" }), 
+    paymentController.handleWebhook
+);
 
-// 🔥 ৩. লগইন থাকা ইউজারের সব পেমেন্ট হিস্ট্রি দেখতে
+// ৩. লগইন থাকা ইউজারের সব পেমেন্ট হিস্ট্রি দেখতে
 router.get(
     "/", 
-    auth(Role.TENANT, Role.LANDLORD, Role.ADMIN), // যে কেউ দেখতে পারবে, ভেতরে ইউজার আইডি ফিল্টার হবে
+    auth(Role.TENANT, Role.LANDLORD, Role.ADMIN), 
     paymentController.getAllPayments
 );
 
-// 🔥 ৪. নির্দিষ্ট কোনো পেমেন্টের ডিটেইলস দেখতে
+// ৪. নির্দিষ্ট কোনো পেমেন্টের ডিটেইলস দেখতে
 router.get(
     "/:id", 
     auth(Role.TENANT, Role.LANDLORD, Role.ADMIN), 

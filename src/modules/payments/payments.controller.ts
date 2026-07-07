@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
-
 import { paymentServices } from "./payments.service";
 import { sendResponse } from "../../utils/sendRespons.";
+
 
 const createCheckoutSession = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -22,6 +22,7 @@ const createCheckoutSession = catchAsync(
 
 const handleWebhook = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
+        // express.raw থাকার কারণে এখন req.body সরাসরি Buffer হিসেবে আসবে
         const event = req.body as Buffer;
         const signature = req.headers['stripe-signature']!;
 
@@ -36,10 +37,8 @@ const handleWebhook = catchAsync(
     }
 );
 
-
-// 🔥 ৩. সব পেমেন্ট হিস্ট্রি তুলে আনার কন্ট্রোলার
 const getAllPayments = catchAsync(async (req: Request, res: Response) => {
-    const user = req.user; // auth middleware থেকে আসা লগইনড ইউজারের ডাটা
+    const user = req.user; 
     const result = await paymentServices.getAllPaymentsFromDB(user);
 
     sendResponse(res, {
@@ -50,7 +49,6 @@ const getAllPayments = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// 🔥 ৪. নির্দিষ্ট পেমেন্টের ডিটেইলস তুলে আনার কন্ট্রোলার
 const getPaymentById = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const user = req.user;
@@ -65,10 +63,8 @@ const getPaymentById = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const paymentController = {
-    // তোমার আগের ফাংশনগুলো এখানে থাকবে
     createCheckoutSession,
     handleWebhook,
-    // নতুন দুটি ফাংশন:
     getAllPayments,
     getPaymentById
 };

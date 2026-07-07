@@ -3,6 +3,7 @@ model Property {
   title       String
   description String?
   location    String
+  price         Int?
   amenities   String[]
   isAvailable IsAvailable     @default(AVAILABLE)
   createdAt   DateTime @default(now())

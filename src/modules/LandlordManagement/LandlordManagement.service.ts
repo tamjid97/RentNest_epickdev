@@ -6,7 +6,7 @@ import { PropertyPayload } from "./LandlordManagement.interface"
 
 
 const createProperty = async(payload : PropertyPayload , landlordId : string) => {
-  const { title, location, categoryId, description,amenities} = payload;
+  const { title, location, categoryId, description,amenities,price} = payload;
 
   const createdProperties = await prisma.property.create({
   data: {
@@ -14,6 +14,7 @@ const createProperty = async(payload : PropertyPayload , landlordId : string) =>
     location,
     description,
     amenities,
+    price,
     category: {
       connect: { id: categoryId }
     },

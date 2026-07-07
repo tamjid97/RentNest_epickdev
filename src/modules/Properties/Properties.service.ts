@@ -5,13 +5,30 @@ import { PropertyPayload } from "./Properties.interface";
 import { sendResponse } from "../../utils/sendRespons.";
 import httpStatus  from "http-status";
 
-const getPropertiesIntoDB = async () => {
-  
+export const getPropertiesIntoDB = async (filters: any) => {
+  const { location, price, type, categoryId } = filters;
 
-  const createdProperties = await prisma.property.findMany({
-    
-  })
-  return createdProperties;
+  const where: any = {};
+
+  // লোকেশন ফিল্টার
+  if (location) {
+    where.location = { contains: location, mode: 'insensitive' };
+  }
+
+  // প্রাইস ফিল্টার (ইউজার যখন একটা ভ্যালু দিবে)
+  if (price) {
+    where.price = Number(price); 
+  }
+
+  // টাইপ বা ক্যাটাগরি ফিল্টার
+  if (type) {
+    where.type = { contains: type, mode: 'insensitive' };
+  }
+
+  return await prisma.property.findMany({
+    where,
+    include: { category: true }
+  });
 };
 
 

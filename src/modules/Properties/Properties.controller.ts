@@ -3,13 +3,13 @@ import { catchAsync } from "../../utils/catchAsync";
 import { PropertiesServices } from "./Properties.service";
 import { sendResponse } from "../../utils/sendRespons.";
 import  httpStatus  from "http-status";
-import { prisma } from "../../lib/prisma";
+
 
 
 
 const getProperties = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
 
-const properties = await PropertiesServices.getPropertiesIntoDB();
+const properties = await PropertiesServices.getPropertiesIntoDB(req.query);
 
 sendResponse(res, {
       success: true,

@@ -53,7 +53,7 @@ app.use("/api/rentals", RentalRequestRouter);
 app.use("/api", PropertiesRouter);
 app.use("/api/admin", AdminManagementRouter);
 app.use("/api/categories", CategoryRoutes);
-app.use("/reviews", ReviewRoutes);
+app.use("/api/reviews", ReviewRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);

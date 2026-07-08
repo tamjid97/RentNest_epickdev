@@ -1,23 +1,19 @@
 import { Request, Response } from "express";
-
-
 import httpStatus from "http-status";
-import { sendResponse } from "../../utils/sendRespons.";
+
 import { catchAsync } from "../../utils/catchAsync";
 import { reviewServices } from "./reviews.service";
-
+import { sendResponse } from "../../utils/sendRespons.";
 
 const createReview = catchAsync(async (req: Request, res: Response) => {
-
-    const user = req.user as any; 
+    const tenantId = req.user?.id as string; 
     
-
-    if (!user) {
+    if (!tenantId) {
         throw new Error("Unauthorized access");
     }
 
     const reviewData = req.body;
-    const result = await reviewServices.createReviewIntoDB(user.userId, reviewData);
+    const result = await reviewServices.createReviewIntoDB(tenantId, reviewData);
 
     sendResponse(res, {
         statusCode: httpStatus.CREATED,

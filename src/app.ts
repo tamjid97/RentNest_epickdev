@@ -18,6 +18,7 @@ import { auth } from "./middlewares/auth";
 import { Role } from "../generated/prisma/enums";
 import { notFound } from "./middlewares/notFound";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
+import { setupSwagger } from "./swagger";
 
 const app: Application = express();
 
@@ -49,6 +50,10 @@ app.use("/api", PropertiesRouter);
 app.use("/api/admin", AdminManagementRouter);
 app.use("/api/categories", auth(Role.ADMIN), CategoryRoutes);
 app.use("/api/reviews", ReviewRoutes);
+
+
+
+setupSwagger(app);
 
 app.get('/', (req, res) => {
   res.status(200).json({

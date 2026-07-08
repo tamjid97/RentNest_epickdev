@@ -10,17 +10,15 @@ export const getPropertiesIntoDB = async (filters: any) => {
 
   const where: any = {};
 
-  // লোকেশন ফিল্টার
+
   if (location) {
     where.location = { contains: location, mode: 'insensitive' };
   }
 
-  // প্রাইস ফিল্টার (ইউজার যখন একটা ভ্যালু দিবে)
   if (price) {
     where.price = Number(price); 
   }
 
-  // টাইপ বা ক্যাটাগরি ফিল্টার
   if (type) {
     where.type = { contains: type, mode: 'insensitive' };
   }

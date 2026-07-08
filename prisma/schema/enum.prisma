@@ -7,6 +7,8 @@ enum Role {
 enum ActiveStatus {
   ACTIVE
   BLOCKED
+  BANNED
+  UNBANNED
 }
 
 enum IsAvailable {

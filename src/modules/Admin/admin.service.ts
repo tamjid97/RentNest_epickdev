@@ -22,7 +22,12 @@ const getAllUsers = async () => {
 
 
 const updateUserStatus = async (id: string, status: string) => {
-  
+
+  const validStatuses = ["ACTIVE", "BLOCKED", "BANNED"];
+  if (!validStatuses.includes(status)) {
+    throw new Error("Invalid status provided!");
+  }
+
   const isUserExist = await prisma.user.findUnique({
     where: { id },
   });
@@ -34,15 +39,9 @@ const updateUserStatus = async (id: string, status: string) => {
   const result = await prisma.user.update({
     where: { id },
     data: {
-      status: status, 
+      activeStatus: status as any, 
     },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      status: true,
-    },
+    
   });
   return result;
 };

@@ -22,7 +22,7 @@ const createCheckoutSession = catchAsync(
 
 const handleWebhook = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        // express.raw থাকার কারণে এখন req.body সরাসরি Buffer হিসেবে আসবে
+        
         const event = req.body as Buffer;
         const signature = req.headers['stripe-signature']!;
 

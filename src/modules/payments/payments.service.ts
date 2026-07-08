@@ -76,21 +76,21 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
         const event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
 
         if (event.type === 'checkout.session.completed') {
-            // পেমেন্ট সেশন কমপ্লিট হলে এটি রান করবে
+            
             await handlePaymentCompleted(event.data.object as any);
         } else {
             console.log(`Unhandled event type ${event.type}.`);
         }
     } catch (err: any) {
-        console.error(`⚠️ Webhook error:`, err.message);
-        throw err; // এখানে এররটি থ্রো করলে এক্সপ্রেসের গ্লোবাল এরর হ্যান্ডলার সেটি ধরবে
+        console.error(` Webhook error:`, err.message);
+        throw err; 
     }
 };
 
 const getAllPaymentsFromDB = async (user: any) => {
     const { userId, role } = user;
 
-    // ১. ADMIN হলে সব পেমেন্ট দেখবে
+
     if (role === 'ADMIN') {
         return await prisma.payment.findMany({
             include: { rentalRequest: { include: { property: true, client: true } } },
@@ -98,7 +98,7 @@ const getAllPaymentsFromDB = async (user: any) => {
         });
     }
 
-    // ২. LANDLORD হলে শুধু তার নিজের প্রোপার্টিগুলোর পেমেন্ট দেখবে 
+
     if (role === 'LANDLORD') {
         return await prisma.payment.findMany({
             where: {
@@ -117,7 +117,6 @@ const getAllPaymentsFromDB = async (user: any) => {
         });
     }
 
-    // ৩. TENANT হলে শুধু নিজের করা পেমেন্ট দেখবে
     return await prisma.payment.findMany({
         where: {
             rentalRequest: {
@@ -145,7 +144,7 @@ const getPaymentByIdFromDB = async (id: string, user: any) => {
         }
     });
 
-    // সিকিউরিটি চেক: ADMIN, সংশ্লিষ্ট TENANT বা সংশ্লিষ্ট LANDLORD বাদে অন্য কেউ দেখতে পারবে না
+
     const isTenant = payment.rentalRequest.clientId === userId;
     const isLandlord = payment.rentalRequest.property.landlordId === userId;
 

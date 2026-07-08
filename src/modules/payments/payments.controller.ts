@@ -4,6 +4,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { paymentServices } from "./payments.service";
 import { sendResponse } from "../../utils/sendRespons.";
 
+
 const createCheckoutSession = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const { rentalRequestId } = req.body; 
@@ -22,16 +23,12 @@ const createCheckoutSession = catchAsync(
 const handleWebhook = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const event = req.body as Buffer;
-        const signature = req.headers['stripe-signature']!;
+        const signature = req.headers['stripe-signature'] as string;
 
-        await paymentServices.handleWebhook(event, signature as string);
+        await paymentServices.handleWebhook(event, signature);
 
-        sendResponse(res, {
-            success: true,
-            statusCode: 200,
-            message: "Webhook triggered successfully",
-            data: null
-        });
+        // 💡 Stripe-কে শুধু একটি 200 স্ট্যাটাস দিতে হয়
+        res.status(200).send({ received: true });
     }
 );
 

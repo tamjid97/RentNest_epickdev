@@ -5,7 +5,6 @@ import { handlePaymentCompleted } from "./payments.utils";
 
 const createCheckoutSession = async (rentalRequestId: string) => {
     const transactionResult = await prisma.$transaction(async (tx) => {
-        
         const rentalRequest = await tx.rentalRequest.findUniqueOrThrow({
             where: { id: rentalRequestId },
             include: { 
@@ -81,13 +80,14 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
             console.log(`Unhandled event type ${event.type}.`);
         }
     } catch (err: any) {
-        console.error(` Webhook error:`, err.message);
+        console.error(`Webhook error:`, err.message);
         throw err; 
     }
 };
 
 const getAllPaymentsFromDB = async (user: any) => {
-    const { userId, role } = user;
+    const userId = user.id || user.userId;
+    const role = user.role;
 
     if (role === 'ADMIN') {
         return await prisma.payment.findMany({
@@ -130,7 +130,8 @@ const getAllPaymentsFromDB = async (user: any) => {
 };
 
 const getPaymentByIdFromDB = async (id: string, user: any) => {
-    const { userId, role } = user;
+    const userId = user.id || user.userId;
+    const role = user.role;
 
     const payment = await prisma.payment.findUniqueOrThrow({
         where: { id },

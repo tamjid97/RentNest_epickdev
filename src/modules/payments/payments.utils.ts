@@ -11,7 +11,6 @@ export const handlePaymentCompleted = async (session: Stripe.Checkout.Session) =
     }
 
     await prisma.$transaction(async (tx) => {
-        // ১. পেমেন্ট রেকর্ড আপডেট
         await tx.payment.update({
             where: { rentalRequestId },
             data: {
@@ -21,7 +20,6 @@ export const handlePaymentCompleted = async (session: Stripe.Checkout.Session) =
             }
         });
 
-        // ২. রেন্টাল রিকোয়েস্ট স্ট্যাটাস ACTIVE করা (অ্যাসাইনমেন্ট লাইফসাইকেল অনুযায়ী)
         await tx.rentalRequest.update({
             where: { id: rentalRequestId },
             data: {

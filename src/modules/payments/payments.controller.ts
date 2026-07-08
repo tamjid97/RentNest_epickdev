@@ -4,7 +4,6 @@ import { catchAsync } from "../../utils/catchAsync";
 import { paymentServices } from "./payments.service";
 import { sendResponse } from "../../utils/sendRespons.";
 
-
 const createCheckoutSession = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const { rentalRequestId } = req.body; 
@@ -22,7 +21,6 @@ const createCheckoutSession = catchAsync(
 
 const handleWebhook = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        
         const event = req.body as Buffer;
         const signature = req.headers['stripe-signature']!;
 

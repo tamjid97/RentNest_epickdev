@@ -76,7 +76,6 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
         const event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
 
         if (event.type === 'checkout.session.completed') {
-            
             await handlePaymentCompleted(event.data.object as any);
         } else {
             console.log(`Unhandled event type ${event.type}.`);
@@ -90,14 +89,12 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
 const getAllPaymentsFromDB = async (user: any) => {
     const { userId, role } = user;
 
-
     if (role === 'ADMIN') {
         return await prisma.payment.findMany({
             include: { rentalRequest: { include: { property: true, client: true } } },
             orderBy: { createdAt: "desc" }
         });
     }
-
 
     if (role === 'LANDLORD') {
         return await prisma.payment.findMany({
@@ -143,7 +140,6 @@ const getPaymentByIdFromDB = async (id: string, user: any) => {
             }
         }
     });
-
 
     const isTenant = payment.rentalRequest.clientId === userId;
     const isLandlord = payment.rentalRequest.property.landlordId === userId;

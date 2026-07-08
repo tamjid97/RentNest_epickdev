@@ -85,54 +85,22 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
     }
 };
 
+
+
 const getAllPaymentsFromDB = async (user: any) => {
-    const userId = user.id || user.userId;
-    const role = user.role;
-
-    if (role === 'ADMIN') {
-        return await prisma.payment.findMany({
-            include: { rentalRequest: { include: { property: true, client: true } } },
-            orderBy: { createdAt: "desc" }
-        });
-    }
-
-    if (role === 'LANDLORD') {
-        return await prisma.payment.findMany({
-            where: {
-                rentalRequest: {
-                    property: {
-                        landlordId: userId
-                    }
-                }
-            },
-            include: {
-                rentalRequest: {
-                    include: { property: true, client: true }
-                }
-            },
-            orderBy: { createdAt: "desc" }
-        });
-    }
-
+    // কোনো ফিল্টার ছাড়াই সব পেমেন্ট রিটার্ন করবে
     return await prisma.payment.findMany({
-        where: {
-            rentalRequest: {
-                clientId: userId 
-            }
-        },
-        include: {
-            rentalRequest: {
-                include: { property: true }
-            }
+        include: { 
+            rentalRequest: { 
+                include: { property: true, client: true } 
+            } 
         },
         orderBy: { createdAt: "desc" }
     });
 };
 
 const getPaymentByIdFromDB = async (id: string, user: any) => {
-    const userId = user.id || user.userId;
-    const role = user.role;
-
+    // কোনো অথোরাইজেশন চেক ছাড়াই আইডি দিয়ে সার্চ করবে
     const payment = await prisma.payment.findUniqueOrThrow({
         where: { id },
         include: {
@@ -141,13 +109,6 @@ const getPaymentByIdFromDB = async (id: string, user: any) => {
             }
         }
     });
-
-    const isTenant = payment.rentalRequest.clientId === userId;
-    const isLandlord = payment.rentalRequest.property.landlordId === userId;
-
-    if (role !== 'ADMIN' && !isTenant && !isLandlord) {
-        throw new Error("You are not authorized to view this payment details");
-    }
 
     return payment;
 };

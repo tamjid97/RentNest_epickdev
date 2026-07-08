@@ -43,8 +43,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/payments", PaymentRoutes);
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome to RentNest API Live Server!",
+  });
 });
 
 app.use("/api/auth", authRoutes);

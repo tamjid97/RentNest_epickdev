@@ -27,19 +27,21 @@ const handleWebhook = catchAsync(
 
         await paymentServices.handleWebhook(event, signature);
 
-        // 💡 Stripe-কে শুধু একটি 200 স্ট্যাটাস দিতে হয়
+        
         res.status(200).send({ received: true });
     }
 );
 
 const getAllPayments = catchAsync(async (req: Request, res: Response) => {
-    const user = req.user; 
-    const result = await paymentServices.getAllPaymentsFromDB(user);
+    const user = req.user!; 
+    
+    
+    const result = await paymentServices.getMyPaymentHistoryFromDB(user.id, user.role);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Payment history retrieved successfully",
+        message: "Latest payment retrieved successfully",
         data: result,
     });
 });

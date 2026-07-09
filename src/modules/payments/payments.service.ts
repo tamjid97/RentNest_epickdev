@@ -88,8 +88,33 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
 
 
 const getAllPaymentsFromDB = async (user: any) => {
-    // কোনো ফিল্টার ছাড়াই সব পেমেন্ট রিটার্ন করবে
+    // তোমার auth middleware-এ ইউজার আইডি 'id' নাকি 'userId' হিসেবে পাস করা হয়েছে তা নিশ্চিত হয়ে নাও
+    const { id: userId, role } = user; 
+
+    let whereCondition: any = {};
+
+    // ১. ইউজার যদি Tenant হয়, তবে সে শুধু নিজের করা পেমেন্ট দেখবে
+    if (role === "TENANT") {
+        whereCondition = {
+            rentalRequest: {
+                clientId: userId
+            }
+        };
+    } 
+    // ২. ইউজার যদি Landlord হয়, তবে তার প্রপার্টিগুলোর বিপরীতে আসা পেমেন্টগুলো দেখবে
+    else if (role === "LANDLORD") {
+        whereCondition = {
+            rentalRequest: {
+                property: {
+                    landlordId: userId
+                }
+            }
+        };
+    }
+    // ৩. ইউজার যদি ADMIN হয়, তবে whereCondition ফাঁকা থাকবে (অর্থাৎ সব পেমেন্ট দেখতে পারবে)
+
     return await prisma.payment.findMany({
+        where: whereCondition,
         include: { 
             rentalRequest: { 
                 include: { property: true, client: true } 

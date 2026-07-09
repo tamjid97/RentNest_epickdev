@@ -11,7 +11,9 @@ const createReviewIntoDB = async (
         where: {
             propertyId,
             clientId: userId, 
-            status: "COMPLETED" 
+            status: {
+                in: ["ACTIVE", "COMPLETED"] 
+            }
         }
     });
 

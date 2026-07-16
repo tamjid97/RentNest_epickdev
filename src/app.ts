@@ -29,19 +29,18 @@ app.use(cors({
 
 app.use(cookieParser());
 
-// 🔥 রিকোয়ারমেন্ট অনুযায়ী এন্ডপয়েন্ট /api/payments/confirm করা হলো।
-// এটি অবশ্যই express.json() এর উপরে থাকবে যেন Raw Body প্রপারলি স্ট্রাইপ পায়।
+
 app.post(
   "/api/payments/confirm",
   express.raw({ type: "application/json" }),
   paymentController.handleWebhook
 );
 
-// গ্লোবাল পার্সার (ওয়েবহুকের নিচে)
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// রাউটস
+
 app.use("/api/payments", PaymentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/landlord", auth(Role.LANDLORD), LandlordManagementRouter);

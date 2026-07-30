@@ -26,7 +26,6 @@ const getPropertiesIntoDB = async (filters: any) => {
   });
 };
 
-// 🌟 আপডেট করা হলো: userId সহ রেন্টাল রিকোয়েস্ট স্ট্যাটাস চেক করার জন্য
 const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
   const property = await prisma.property.findUnique({
     where: { id },
@@ -50,23 +49,22 @@ const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
 
   let currentUserRequestStatus = null;
 
-  // যদি ইউজার আইডি পাওয়া যায়, তবে এই প্রপার্টির জন্য তার রেন্টাল রিকোয়েস্ট স্ট্যাটাস বের করব
   if (userId) {
     const rentalRequest = await prisma.rentalRequest.findFirst({
       where: {
         propertyId: id,
-        tenantId: userId, // অথবা আপনার মডেলে টেন্যান্টের ফিল্ডের নাম যা থাকে (যেমন: userId / tenantId)
+        clientId: userId, // 🌟 'tenantId'-এর পরিবর্তে সঠিক ফিল্ড 'clientId' ব্যবহার করা হলো
       },
     });
 
     if (rentalRequest) {
-      currentUserRequestStatus = rentalRequest.status; // PENDING, APPROVED ইত্যাদি
+      currentUserRequestStatus = rentalRequest.status; 
     }
   }
 
   return {
     ...property,
-    currentUserRequestStatus, // 🌟 ফ্রন্টএন্ডে এটি চলে যাবে
+    currentUserRequestStatus, 
   };
 };
 
@@ -75,29 +73,23 @@ const getAllCategoriesFromDB = async () => {
   return result;
 };
 
-// ==========================================
-// 1. Create Property into DB (FIXED)
-// ==========================================
 const createPropertyIntoDB = async (payload: any, landlordId: string) => {
   const result = await prisma.property.create({
     data: {
       title: String(payload.title),
       description: payload.description ? String(payload.description) : null,
       location: String(payload.location),
-      price: Number(payload.price), // Number cast
+      price: Number(payload.price), 
       amenities: Array.isArray(payload.amenities) ? payload.amenities : [],
       image: payload.image || null,
-      isAvailable: payload.isAvailable || "AVAILABLE", // Enum Match
+      isAvailable: payload.isAvailable || "AVAILABLE", 
       categoryId: String(payload.categoryId),
-      landlordId: String(landlordId), // 🔥 landlordId বাধ্যতামূলক যুক্ত করা হয়েছে
+      landlordId: String(landlordId), 
     },
   });
   return result;
 };
 
-// ==========================================
-// 2. Update Property in DB (FIXED)
-// ==========================================
 const updatePropertyInDB = async (id: string, payload: any, landlordId: string) => {
   const isExist = await prisma.property.findUnique({ where: { id } });
 
@@ -125,9 +117,6 @@ const updatePropertyInDB = async (id: string, payload: any, landlordId: string) 
   return result;
 };
 
-// ==========================================
-// 3. Delete Property from DB (FIXED)
-// ==========================================
 const deletePropertyFromDB = async (id: string, landlordId: string) => {
   const isExist = await prisma.property.findUnique({ where: { id } });
 

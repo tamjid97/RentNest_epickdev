@@ -49,11 +49,14 @@ const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
 
   let currentUserRequestStatus = null;
 
-  if (userId) {
+if (userId) {
     const rentalRequest = await prisma.rentalRequest.findFirst({
       where: {
         propertyId: id,
-        clientId: userId, // 🌟 'tenantId'-এর পরিবর্তে সঠিক ফিল্ড 'clientId' ব্যবহার করা হলো
+        clientId: userId,
+      },
+      orderBy: {
+        createdAt: 'desc', 
       },
     });
 

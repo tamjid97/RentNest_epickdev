@@ -5,7 +5,7 @@ import { auth } from "../../middlewares/auth";
 const router = Router();
 
 router.post("/properties", auth(), LandlordManagementController.createPropertyIntoDB);
-router.get("landloard/properties", auth(), LandlordManagementController.getLandlordProperties);
+router.get("/landloard/properties", auth(), LandlordManagementController.getLandlordProperties);
 router.put("/properties/:id", auth(), LandlordManagementController.getPropertyByIdIntoDB);
 router.delete("/properties/:id", auth(), LandlordManagementController.deleteByIdIntoDB);
 

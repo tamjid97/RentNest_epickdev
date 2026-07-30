@@ -17,7 +17,13 @@ const getProperties = catchAsync(async (req: Request, res: Response) => {
 
 const getPropertyDetails = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await PropertiesServices.getPropertyDetailsFromDB(id as string);
+  
+  // 🌟 লগইন করা ইউজারের আইডি সংগ্রহ করা হলো (অথেন্টিকেশন মিডলওয়্যার থেকে)
+  const user = (req as any).user;
+  const userId = user?.id || user?.userId;
+
+  // 🌟 সার্ভিস ফাংশনে id এর সাথে userId ও পাস করে দেওয়া হলো
+  const result = await PropertiesServices.getPropertyDetailsFromDB(id as string, userId);
 
   if (!result) {
     return res.status(httpStatus.NOT_FOUND).json({
@@ -49,7 +55,6 @@ const getAllCategories = catchAsync(async (req: Request, res: Response) => {
 // Create Property Controller
 // ==========================================
 const createProperty = catchAsync(async (req: Request, res: Response) => {
-  // auth middleware থেকে প্রাপ্ত ইউজার
   const user = (req as any).user; 
   const landlordId = user?.id || user?.userId;
 

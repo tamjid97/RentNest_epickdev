@@ -6,9 +6,12 @@
 "scripts": {
     "dev": "tsx watch ./src/server.ts",
     "build": "tsup",
-    "start": "node dist/server.ts",
-    "postinstall": "prisma generate",
+    "start": "node dist/server.js",
+    "postinstall": "prisma generate --schema=prisma/schema/schema.prisma",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "prisma": {
+    "schema": "prisma/schema/schema.prisma"
   },
   "keywords": [],
   "author": "",

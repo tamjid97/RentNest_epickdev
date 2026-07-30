@@ -1,18 +1,22 @@
 model Property {
-  id          String          @id @default(uuid())
+  id          String      @id @default(uuid())
   title       String
   description String?
   location    String
   price       Int?
   amenities   String[]
-  image       String?        
-  isAvailable IsAvailable     @default(AVAILABLE)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  image       String?
+  isAvailable IsAvailable @default(AVAILABLE)
+
   categoryId  String
-  category    Category        @relation(fields: [categoryId], references: [id])
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   landlordId  String
-  landlord    User            @relation(fields: [landlordId], references: [id])
+  landlord    User        @relation(fields: [landlordId], references: [id], onDelete: Cascade)
+
   requests    RentalRequest[]
-  Reviews     Review[]
+  reviews     Review[]    // ছোট হাতের "reviews" কনভেনশন মেনে করা হয়েছে
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }

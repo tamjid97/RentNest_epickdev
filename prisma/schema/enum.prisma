@@ -8,7 +8,6 @@ enum ActiveStatus {
   ACTIVE
   BLOCKED
   BANNED
-  UNBANNED
 }
 
 enum IsAvailable {
@@ -20,9 +19,9 @@ enum Status {
   PENDING
   APPROVED
   REJECTED
-  PAYMENT     
-  ACTIVE      
-  COMPLETED   
+  PAYMENT
+  ACTIVE
+  COMPLETED
 }
 
 enum PaymentProvider {

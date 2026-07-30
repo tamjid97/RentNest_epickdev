@@ -1,25 +1,37 @@
 import { prisma } from "../../lib/prisma";
 import { PropertyPayload } from "./LandlordManagement.interface";
 
-const createProperty = async (payload: PropertyPayload, landlordId: string) => {
-  const { title, location, categoryId, description, amenities, price, image } = payload;
+
+
+const createProperty = async (payload: any, landlordId: string) => {
+  const { title, location, categoryId, description, amenities, price, image, isAvailable } = payload;
+
+  // ভ্যালিডেশন ও টাইপ কনভার্শন নিশ্চিত করা
+  const parsedPrice = price !== undefined && price !== null && price !== "" ? Number(price) : null;
+  const parsedAmenities = Array.isArray(amenities) ? amenities.map(String) : [];
+
+  if (!categoryId) {
+    throw new Error("Category ID is required!");
+  }
 
   const createdProperties = await prisma.property.create({
     data: {
-      title,
-      location,
-      description,
-      amenities,
-      price,
-      image, 
+      title: String(title),
+      location: String(location),
+      description: description ? String(description) : null,
+      price: parsedPrice,
+      amenities: parsedAmenities,
+      image: image ? String(image) : null,
+      ...(isAvailable && { isAvailable: isAvailable as any }),
       category: {
-        connect: { id: categoryId }
+        connect: { id: String(categoryId) }
       },
       landlord: {
-        connect: { id: landlordId }
+        connect: { id: String(landlordId) }
       }
     }
   });
+  
   return createdProperties;
 };
 

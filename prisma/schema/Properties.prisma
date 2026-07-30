@@ -15,7 +15,7 @@ model Property {
   landlord    User        @relation(fields: [landlordId], references: [id], onDelete: Cascade)
 
   requests    RentalRequest[]
-  reviews     Review[]    // ছোট হাতের "reviews" কনভেনশন মেনে করা হয়েছে
+  reviews     Review[]  
 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

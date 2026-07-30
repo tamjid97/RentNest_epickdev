@@ -26,13 +26,14 @@ const getPropertiesIntoDB = async (filters: any) => {
   });
 };
 
-const getPropertyDetailsFromDB = async (id: string) => {
-  const result = await prisma.property.findUnique({
+// 🌟 আপডেট করা হলো: userId সহ রেন্টাল রিকোয়েস্ট স্ট্যাটাস চেক করার জন্য
+const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
+  const property = await prisma.property.findUnique({
     where: { id },
     include: {
       category: true, 
       landlord: {
-        select: {     
+        select: {    
           id: true,
           name: true,
           email: true,
@@ -42,7 +43,31 @@ const getPropertyDetailsFromDB = async (id: string) => {
       },
     },
   });
-  return result;
+
+  if (!property) {
+    return null;
+  }
+
+  let currentUserRequestStatus = null;
+
+  // যদি ইউজার আইডি পাওয়া যায়, তবে এই প্রপার্টির জন্য তার রেন্টাল রিকোয়েস্ট স্ট্যাটাস বের করব
+  if (userId) {
+    const rentalRequest = await prisma.rentalRequest.findFirst({
+      where: {
+        propertyId: id,
+        tenantId: userId, // অথবা আপনার মডেলে টেন্যান্টের ফিল্ডের নাম যা থাকে (যেমন: userId / tenantId)
+      },
+    });
+
+    if (rentalRequest) {
+      currentUserRequestStatus = rentalRequest.status; // PENDING, APPROVED ইত্যাদি
+    }
+  }
+
+  return {
+    ...property,
+    currentUserRequestStatus, // 🌟 ফ্রন্টএন্ডে এটি চলে যাবে
+  };
 };
 
 const getAllCategoriesFromDB = async () => {
@@ -64,7 +89,7 @@ const createPropertyIntoDB = async (payload: any, landlordId: string) => {
       image: payload.image || null,
       isAvailable: payload.isAvailable || "AVAILABLE", // Enum Match
       categoryId: String(payload.categoryId),
-      landlordId: String(landlordId), // 🔥 landlordId বাধ্যতামূলক যুক্ত করা হয়েছে
+      landlordId: String(landlordId), // 🔥 landlordId বাধ্যতামূলক যুক্ত করা হয়েছে
     },
   });
   return result;

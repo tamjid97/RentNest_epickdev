@@ -5,6 +5,7 @@ model Property {
   location    String
   price       Int?
   amenities   String[]
+  image       String?        
   isAvailable IsAvailable     @default(AVAILABLE)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt

@@ -1,64 +1,76 @@
-import { Result } from "pg";
 import { prisma } from "../../lib/prisma";
-import { PropertyPayload } from "./LandlordManagement.interface"
+import { PropertyPayload } from "./LandlordManagement.interface";
 
-
-
-
-const createProperty = async(payload : PropertyPayload , landlordId : string) => {
-  const { title, location, categoryId, description,amenities,price} = payload;
+const createProperty = async (payload: PropertyPayload, landlordId: string) => {
+  const { title, location, categoryId, description, amenities, price, image } = payload;
 
   const createdProperties = await prisma.property.create({
-  data: {
-    title,
-    location,
-    description,
-    amenities,
-    price,
-    category: {
-      connect: { id: categoryId }
-    },
-    landlord: {
-      connect: { id: landlordId }
+    data: {
+      title,
+      location,
+      description,
+      amenities,
+      price,
+      image, 
+      category: {
+        connect: { id: categoryId }
+      },
+      landlord: {
+        connect: { id: landlordId }
+      }
     }
-  }
-});
+  });
   return createdProperties;
-}
+};
 
 
-const getPropertyById = async(id : string, data : any)=>{
-const result = await prisma.property.update({
-  where : {
-    id :id,
-  },
-    data : data,
-});
-if (!result) {
+const getLandlordPropertiesFromDB = async (landlordId: string) => {
+  const result = await prisma.property.findMany({
+    where: {
+      landlordId: landlordId,
+    },
+    include: {
+      category: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return result;
+};
+
+const getPropertyById = async (id: string, data: any) => {
+  const result = await prisma.property.update({
+    where: {
+      id: id,
+    },
+    data: data,
+  });
+  
+  if (!result) {
     throw new Error("Property not found!");
   }
 
-  return result
-}
+  return result;
+};
 
-const deleteById = async(id : string)=>{
-const deleteProperty = await prisma.property.findUniqueOrThrow({
-  where : {
-    id : id
-  },
-  select: {
-            id: true
-        }
-})
+const deleteById = async (id: string) => {
+  const deleteProperty = await prisma.property.findUniqueOrThrow({
+    where: {
+      id: id
+    },
+    select: {
+      id: true
+    }
+  });
 
-const property = await prisma.property.delete({
-  where:{
-    id : deleteProperty.id
-  }
-})
-return property
-}
-
+  const property = await prisma.property.delete({
+    where: {
+      id: deleteProperty.id
+    }
+  });
+  return property;
+};
 
 const getLandlordRequestsFromDB = async (landlordId: string) => {
   const result = await prisma.rentalRequest.findMany({
@@ -82,9 +94,7 @@ const getLandlordRequestsFromDB = async (landlordId: string) => {
   return result;
 };
 
-
 const updateRequestStatusInDB = async (requestId: string, status: string, landlordId: string) => {
-  
   const requestDetails = await prisma.rentalRequest.findUnique({
     where: { id: requestId },
     include: { property: true },
@@ -94,7 +104,6 @@ const updateRequestStatusInDB = async (requestId: string, status: string, landlo
     throw new Error("Unauthorized! You do not own this property.");
   }
 
-  
   const result = await prisma.rentalRequest.update({
     where: {
       id: requestId,
@@ -108,8 +117,9 @@ const updateRequestStatusInDB = async (requestId: string, status: string, landlo
 
 export const LandlordManagementServices = {
   createProperty,
+  getLandlordPropertiesFromDB,
   getPropertyById,
   deleteById,
   getLandlordRequestsFromDB,
   updateRequestStatusInDB
-}
+};

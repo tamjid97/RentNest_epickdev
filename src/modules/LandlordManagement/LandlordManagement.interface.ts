@@ -4,5 +4,6 @@ export interface PropertyPayload {
   categoryId: string;   
   description?: string; 
   amenities?: string[]; 
-  price : number; 
+  price?: number; 
+  image?: string; 
 }

@@ -7,7 +7,6 @@ import { LandlordManagementServices } from "./LandlordManagement.service";
 const createPropertyIntoDB = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
-
     const landlordId = req.user?.id;
 
     if (!landlordId) {
@@ -28,6 +27,20 @@ const createPropertyIntoDB = catchAsync(
   },
 );
 
+
+const getLandlordProperties = catchAsync(async (req: Request, res: Response) => {
+  const landlordId = (req.user as any).id;
+
+  const result = await LandlordManagementServices.getLandlordPropertiesFromDB(landlordId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Landlord properties retrieved successfully",
+    data: result,
+  });
+});
+
 const getPropertyByIdIntoDB = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
@@ -46,10 +59,8 @@ const getPropertyByIdIntoDB = catchAsync(
   },
 );
 
-const deleteByIdIntoDB = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
-
-
-  const {id} = req.params
+const deleteByIdIntoDB = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
 
   const result = await LandlordManagementServices.deleteById(id as string);
 
@@ -60,7 +71,6 @@ const deleteByIdIntoDB = catchAsync(async(req: Request, res: Response, next: Nex
     data: result,
   });
 });
-
 
 const getLandlordRequests = catchAsync(async (req: Request, res: Response) => {
   const landlordId = (req.user as any).id;
@@ -74,7 +84,6 @@ const getLandlordRequests = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 
 const updateRequestStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params; 
@@ -95,10 +104,9 @@ const updateRequestStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-
 export const LandlordManagementController = {
   createPropertyIntoDB,
+  getLandlordProperties, 
   getPropertyByIdIntoDB,
   deleteByIdIntoDB,
   getLandlordRequests,

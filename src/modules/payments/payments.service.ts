@@ -27,7 +27,8 @@ const createCheckoutSession = async (rentalRequestId: string) => {
       );
     }
 
-    const baseUrl = config.app_url || "http://localhost:3000";
+    const baseUrl =
+      process.env.APP_URL || config.app_url || "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -45,11 +46,10 @@ const createCheckoutSession = async (rentalRequestId: string) => {
       ],
       mode: "payment",
       customer_email: rentalRequest.client.email,
-      
+
       // 🌟 এখানে পরিবর্তন করা হয়েছে: /payment/success এর জায়গায় /payments দেওয়া হয়েছে
-      success_url: `${baseUrl}/payments?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/payments?status=cancelled`,
-      
+      success_url: `http://localhost:3000/payments?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3000/payments?status=cancelled`,
       metadata: {
         rentalRequestId: rentalRequest.id,
       },
@@ -111,14 +111,14 @@ const getMyPaymentHistoryFromDB = async (userId: string, role: Role) => {
     whereConditions = {
       rentalRequest: {
         property: {
-          landlordId: userId, 
+          landlordId: userId,
         },
       },
     };
   }
 
   const result = await prisma.payment.findFirst({
-    where: whereConditions, 
+    where: whereConditions,
     include: {
       rentalRequest: {
         include: {
@@ -128,8 +128,8 @@ const getMyPaymentHistoryFromDB = async (userId: string, role: Role) => {
       },
     },
     orderBy: {
-      createdAt: 'desc',
-    }
+      createdAt: "desc",
+    },
   });
 
   return result;

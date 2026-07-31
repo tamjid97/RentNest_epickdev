@@ -48,6 +48,7 @@ const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
   }
 
   let currentUserRequestStatus = null;
+  let currentRentalRequestId = null; // 🌟 ১. আইডি রাখার জন্য নতুন ভেরিয়েবল
 
   if (userId) {
     const rentalRequest = await prisma.rentalRequest.findFirst({
@@ -62,12 +63,14 @@ const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
 
     if (rentalRequest) {
       currentUserRequestStatus = rentalRequest.status; 
+      currentRentalRequestId = rentalRequest.id; // 🌟 ২. রিকোয়েস্টের আইডি সেট করা হলো
     }
   }
 
   return {
     ...property,
     currentUserRequestStatus, 
+    currentRentalRequestId, // 🌟 ৩. ফ্রন্টএন্ডে পাঠানোর জন্য রিটার্ন করা হলো
   };
 };
 

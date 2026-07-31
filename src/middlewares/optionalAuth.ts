@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { Role } from "../../generated/prisma/enums"; // আপনার Role enum এর সঠিক পাথ
+import { Role } from "../../generated/prisma/enums";
 
-// ১. ইউজারের পেলোডের জন্য একটি Interface ডিফাইন করুন
 interface CustomJwtPayload {
   id: string;
   name: string;
@@ -10,21 +9,25 @@ interface CustomJwtPayload {
   role: Role;
 }
 
-export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const optionalAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
+    // ১. কুকি বা হেডার থেকে টোকেন চেক
     const token = req.cookies?.accessToken || req.headers.authorization?.split(" ")[1];
 
-    if (token) {
-      // 🎯 'as unknown as CustomJwtPayload' দিয়ে টাইপ কাস্টিং করুন
-      const verifiedUser = jwt.verify(
-        token, 
-        process.env.JWT_SECRET as string
-      ) as unknown as CustomJwtPayload;
-
-      req.user = verifiedUser; // ✅ এখন আর কোনো Type Error দিবে না
+    if (!token) {
+      req.user = undefined;
+      return next(); // 👈 টোকেন না থাকলে সরাসরি পরবর্তী ধাপে পাঠিয়ে দিন
     }
+
+    // ২. টোকেন থাকলে তা ভেরিফাই করুন
+    const secret = process.env.JWT_SECRET || "your_jwt_secret"; // ব্যাকআপ সিক্রেট
+    const verifiedUser = jwt.verify(token, secret) as unknown as CustomJwtPayload;
+
+    req.user = verifiedUser;
   } catch (error) {
-    console.log("Optional Auth: User is guest");
+    // ⚠️ টোকেন Expired বা Invalid হলেও গেস্ট ইউজার হিসেবে ট্রিট করা হবে
+    console.log("Optional Auth: Token invalid or expired, treating as guest");
+    req.user = undefined;
   }
 
   next();

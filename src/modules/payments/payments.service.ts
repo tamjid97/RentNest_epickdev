@@ -45,8 +45,11 @@ const createCheckoutSession = async (rentalRequestId: string) => {
       ],
       mode: "payment",
       customer_email: rentalRequest.client.email,
-      success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/payment/cancel`,
+      
+      // 🌟 এখানে পরিবর্তন করা হয়েছে: /payment/success এর জায়গায় /payments দেওয়া হয়েছে
+      success_url: `${baseUrl}/payments?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/payments?status=cancelled`,
+      
       metadata: {
         rentalRequestId: rentalRequest.id,
       },
@@ -114,7 +117,6 @@ const getMyPaymentHistoryFromDB = async (userId: string, role: Role) => {
     };
   }
 
-  // 🔥 findMany এর বদলে findFirst এবং orderBy ব্যবহার করা হলো
   const result = await prisma.payment.findFirst({
     where: whereConditions, 
     include: {
@@ -126,7 +128,7 @@ const getMyPaymentHistoryFromDB = async (userId: string, role: Role) => {
       },
     },
     orderBy: {
-      createdAt: 'desc', // একদম শেষের পেমেন্টটা সবার আগে ধরবে
+      createdAt: 'desc',
     }
   });
 
@@ -147,8 +149,8 @@ const getPaymentByIdFromDB = async (id: string, user: any) => {
 };
 
 export const paymentServices = {
-    createCheckoutSession,
-    handleWebhook,
-    getMyPaymentHistoryFromDB,
-    getPaymentByIdFromDB,
+  createCheckoutSession,
+  handleWebhook,
+  getMyPaymentHistoryFromDB,
+  getPaymentByIdFromDB,
 };

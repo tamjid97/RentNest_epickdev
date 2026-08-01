@@ -7,9 +7,9 @@ import { Role } from "../../../generated/prisma/enums";
 const router = Router();
 
 // ✅ Public Routes-এ optionalAuth ব্যবহার করুন
-router.get("/properties", auth(), PropertiesController.getProperties);
-router.get("/properties/:id", auth(), PropertiesController.getPropertyDetails);
-router.get("/categories", auth(), PropertiesController.getAllCategories);
+router.get("/properties", optionalAuth, PropertiesController.getProperties);
+router.get("/properties/:id", optionalAuth, PropertiesController.getPropertyDetails);
+router.get("/categories", optionalAuth, PropertiesController.getAllCategories);
 
 // 🔒 Landlord Protected Routes (এগুলোতে আগের Strict Auth-ই থাকবে)
 router.post("/landlord/properties", auth(Role.LANDLORD), PropertiesController.createProperty);

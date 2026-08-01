@@ -20,7 +20,7 @@ export const optionalAuth = (req: Request, res: Response, next: NextFunction) =>
     }
 
     // ২. টোকেন থাকলে তা ভেরিফাই করুন
-    const secret = process.env.JWT_SECRET || "your_jwt_secret"; // ব্যাকআপ সিক্রেট
+    const secret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "your_jwt_secret"; // ব্যাকআপ সিক্রেট
     const verifiedUser = jwt.verify(token, secret) as unknown as CustomJwtPayload;
 
     req.user = verifiedUser;

@@ -25,14 +25,24 @@ const postRentalRequestIntoDB = async (payload: any, clientId: string) => {
   }
 };
 
-
 const getRentalRequestIntoDB = async (clientId: string) => {
   const result = await prisma.rentalRequest.findMany({
     where: {
-      clientId: clientId, 
+      clientId: clientId,
     },
     include: {
-      property: true,
+      property: {
+        include: {
+          landlord: { // আপনার Prisma Schema-তে Landlord রিলেশনের নাম যদি 'landlord' হয়
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true, // আপনার প্রয়োজন অনুযায়ী ফিল্ডগুলো সিলেক্ট করতে পারেন
+            },
+          },
+        },
+      },
     },
   });
   return result;

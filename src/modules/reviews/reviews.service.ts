@@ -6,7 +6,7 @@ const createReviewIntoDB = async (
 ) => {
     const { propertyId, rating, comment } = payload;
 
-
+    // ১. চেক করা ইউজার সফলভাবে প্রপার্টিটি রেন্ট করেছে কিনা
     const hasValidRental = await prisma.rentalRequest.findFirst({
         where: {
             propertyId,
@@ -21,7 +21,19 @@ const createReviewIntoDB = async (
         throw new Error("You can only review properties that you have successfully rented!");
     }
 
+    // ২. 🌟 ডুপ্লিকেট রিভিউ চেক (একই ইউজার একই প্রপার্টিতে একবারের বেশি রিভিউ দিতে পারবে না)
+    const existingReview = await prisma.review.findFirst({
+        where: {
+            propertyId,
+            tenantId: userId,
+        },
+    });
 
+    if (existingReview) {
+        throw new Error("You have already reviewed this property!");
+    }
+
+    // ৩. রিভিউ তৈরি করা
     const result = await prisma.review.create({
         data: {
             propertyId,

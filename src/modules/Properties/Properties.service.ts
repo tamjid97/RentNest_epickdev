@@ -1,23 +1,15 @@
 import { prisma } from "../../lib/prisma";
 
-const getPropertiesIntoDB = async (filters: any) => {
-  const { location, price, type, categoryId } = filters;
+const getPropertiesIntoDB = async (query: any) => {
+  const { searchTerm } = query;
   const where: any = {};
 
-  if (location) {
-    where.location = { contains: location, mode: 'insensitive' };
-  }
-
-  if (price) {
-    where.price = Number(price); 
-  }
-
-  if (type) {
-    where.type = { contains: type, mode: 'insensitive' };
-  }
-
-  if (categoryId) {
-    where.categoryId = categoryId;
+  // 🟢 শুধু সার্চিং লজিক (টাইটেল বা লোকেশন অনুযায়ী সার্চ করবে)
+  if (searchTerm) {
+    where.OR = [
+      { title: { contains: searchTerm, mode: 'insensitive' } },
+      { location: { contains: searchTerm, mode: 'insensitive' } },
+    ];
   }
 
   return await prisma.property.findMany({
@@ -48,7 +40,7 @@ const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
   }
 
   let currentUserRequestStatus = null;
-  let currentRentalRequestId = null; // 🌟 ১. আইডি রাখার জন্য নতুন ভেরিয়েবল
+  let currentRentalRequestId = null; 
 
   if (userId) {
     const rentalRequest = await prisma.rentalRequest.findFirst({
@@ -63,14 +55,14 @@ const getPropertyDetailsFromDB = async (id: string, userId?: string) => {
 
     if (rentalRequest) {
       currentUserRequestStatus = rentalRequest.status; 
-      currentRentalRequestId = rentalRequest.id; // 🌟 ২. রিকোয়েস্টের আইডি সেট করা হলো
+      currentRentalRequestId = rentalRequest.id; 
     }
   }
 
   return {
     ...property,
     currentUserRequestStatus, 
-    currentRentalRequestId, // 🌟 ৩. ফ্রন্টএন্ডে পাঠানোর জন্য রিটার্ন করা হলো
+    currentRentalRequestId, 
   };
 };
 

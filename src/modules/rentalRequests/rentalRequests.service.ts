@@ -1,11 +1,7 @@
 import { RentalRequest } from "../../../generated/prisma/browser"
 import { prisma } from "../../lib/prisma";
 
-
-
 const postRentalRequestIntoDB = async (payload: any, clientId: string) => {
-  
-  
   const { propertyId, rentStartDate, rentEndDate } = payload;
   
   try {
@@ -20,7 +16,6 @@ const postRentalRequestIntoDB = async (payload: any, clientId: string) => {
     
     return result;
   } catch (error) {
-    
     throw error;
   }
 };
@@ -33,12 +28,12 @@ const getRentalRequestIntoDB = async (clientId: string) => {
     include: {
       property: {
         include: {
-          landlord: { // আপনার Prisma Schema-তে Landlord রিলেশনের নাম যদি 'landlord' হয়
+          landlord: { 
             select: {
               id: true,
               name: true,
               email: true,
-              phone: true, // আপনার প্রয়োজন অনুযায়ী ফিল্ডগুলো সিলেক্ট করতে পারেন
+              // phone: true, // 👈 Prisma মডেলে 'phone' ফিল্ড না থাকায় এটি কমেন্ট বা ডিলিট করা হলো
             },
           },
         },
@@ -62,7 +57,7 @@ const getRentalRequestDetailsIntoDB = async (id: string) => {
 };
 
 export const RentalRequestServices = {
-postRentalRequestIntoDB,
-getRentalRequestDetailsIntoDB,
-getRentalRequestIntoDB
-}
+  postRentalRequestIntoDB,
+  getRentalRequestDetailsIntoDB,
+  getRentalRequestIntoDB,
+};

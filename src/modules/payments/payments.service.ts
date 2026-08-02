@@ -117,7 +117,8 @@ const getMyPaymentHistoryFromDB = async (userId: string, role: Role) => {
     };
   }
 
-  const result = await prisma.payment.findFirst({
+  // এখানে findFirst এর পরিবর্তে findMany ব্যবহার করা হয়েছে
+  const result = await prisma.payment.findMany({ 
     where: whereConditions,
     include: {
       rentalRequest: {
@@ -128,7 +129,7 @@ const getMyPaymentHistoryFromDB = async (userId: string, role: Role) => {
       },
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "desc", // এটি লেটেস্ট পেমেন্টগুলোকে সবার উপরে রাখবে
     },
   });
 

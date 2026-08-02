@@ -48,7 +48,7 @@ const createCheckoutSession = async (rentalRequestId: string) => {
       customer_email: rentalRequest.client.email,
 
 
-      success_url: `https://rentnest-navy.vercel.app/payments?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `https://rentnest-navy.vercel.app/tenant/payments?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://rentnest-navy.vercel.app/payments?status=cancelled`,
       metadata: {
         rentalRequestId: rentalRequest.id,

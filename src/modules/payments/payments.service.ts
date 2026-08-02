@@ -136,17 +136,12 @@ const getMyPaymentHistoryFromDB = async (userId: string, role: Role) => {
   return result;
 };
 
-// payment.service.ts ফাইলের ভেতরে:
 const getPaymentByIdFromDB = async (id: string, user: any) => {
   const payment = await prisma.payment.findUniqueOrThrow({
     where: { id },
     include: {
       rentalRequest: {
-        include: { 
-           property: true, 
-           client: true,
-           review: true // 👈 এটি যুক্ত করতে হবে (বা reviews: true)
-        },
+        include: { property: true, client: true },
       },
     },
   });

@@ -11,13 +11,14 @@ import { PropertiesRouter } from "./modules/Properties/Properties.route";
 import { AdminManagementRouter } from "./modules/Admin/admin.route";
 import { CategoryRoutes } from "./modules/Category/Category.route";
 import { PaymentRoutes } from "./modules/payments/payments.route";
-import { ReviewRoutes } from "./modules/reviews/reviews.routes";
+
 
 import { paymentController } from "./modules/payments/payments.controller";
 import { auth } from "./middlewares/auth";
 import { Role } from "../generated/prisma/enums";
 import { notFound } from "./middlewares/notFound";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
+import { ProfileRoutes } from "./modules/Profile/Profile.routes";
 
 
 const app: Application = express();
@@ -48,7 +49,7 @@ app.use("/api/rentals", auth(Role.TENANT), RentalRequestRouter);
 app.use("/api", PropertiesRouter);
 app.use("/api/admin", AdminManagementRouter);
 app.use("/api/categories", auth(Role.ADMIN), CategoryRoutes);
-app.use("/api/reviews", ReviewRoutes);
+app.use("/api/Profile", ProfileRoutes);
 
 
 

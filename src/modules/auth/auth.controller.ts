@@ -77,13 +77,17 @@ const updateMyProfile = catchAsync(
   async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
     const { accessToken } = req.cookies;
     
+    if (!accessToken) {
+      throw new Error("Unauthorized access, token missing");
+    }
+
     const tokenResponse = jwtUtils.verifyToken(
       accessToken,
       config.jwt_access_secret,
     ) as any;
 
-    if (typeof tokenResponse === "string") {
-      throw new Error(tokenResponse);
+    if (!tokenResponse.success || !tokenResponse.data) {
+      throw new Error("Invalid token");
     }
 
     const userId = tokenResponse.data.id;

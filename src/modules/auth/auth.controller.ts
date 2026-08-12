@@ -6,7 +6,6 @@ import { authService } from "./auth.service";
 import { jwtUtils } from "../../utils/jwt";
 import config from "../../config";
 
-
 const createRegisterUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
@@ -16,9 +15,7 @@ const createRegisterUser = catchAsync(
       success: true,
       statusCode: httpStatus.CREATED,
       message: "User registered successfully",
-      data: {
-        user,
-      },
+      data: { user },
     });
   },
 );
@@ -26,9 +23,7 @@ const createRegisterUser = catchAsync(
 const loginUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
-
-    const { accessToken, refreshToken } =
-      await authService.loginUserIntiBD(payload);
+    const { accessToken, refreshToken } = await authService.loginUserIntiBD(payload);
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
@@ -54,10 +49,9 @@ const loginUser = catchAsync(
 );
 
 const getMe = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
     const { accessToken } = req.cookies;
     
-
     const tokenResponse = jwtUtils.verifyToken(
       accessToken,
       config.jwt_access_secret,
@@ -78,25 +72,50 @@ const getMe = catchAsync(
   },
 );
 
+// নতুন আপডেট প্রোফাইল কন্ট্রোলার
+const updateMyProfile = catchAsync(
+  async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+    const { accessToken } = req.cookies;
+    
+    const tokenResponse = jwtUtils.verifyToken(
+      accessToken,
+      config.jwt_access_secret,
+    ) as any;
+
+    if (typeof tokenResponse === "string") {
+      throw new Error(tokenResponse);
+    }
+
+    const userId = tokenResponse.data.id;
+    const updateData = req.body;
+    
+    const result = await authService.updateProfileIntoDB(userId, updateData);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Profile updated successfully",
+      data: { profile: result },
+    });
+  },
+);
+
 const refreshToken = catchAsync(async (req : Request, res : Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken;
-
     const {accessToken} = await authService.refreshToken(refreshToken);
 
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: false,
         sameSite: "none",
-        maxAge: 1000 * 60 * 60 * 24 // 24 hour or 1 day
+        maxAge: 1000 * 60 * 60 * 24
     })
 
     sendResponse(res, {
         success : true,
         statusCode : httpStatus.OK,
         message : "Token Refreshed Successfully",
-        data : {
-            accessToken
-        }
+        data : { accessToken }
     })
 })
 
@@ -104,5 +123,6 @@ export const AuthController = {
   createRegisterUser,
   loginUser,
   getMe,
+  updateMyProfile,
   refreshToken
 };

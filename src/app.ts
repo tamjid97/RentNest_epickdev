@@ -18,7 +18,7 @@ import { auth } from "./middlewares/auth";
 import { Role } from "../generated/prisma/enums";
 import { notFound } from "./middlewares/notFound";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
-import { ProfileRoutes } from "./modules/Profile/Profile.routes";
+
 
 
 const app: Application = express();
@@ -49,7 +49,7 @@ app.use("/api/rentals", auth(Role.TENANT), RentalRequestRouter);
 app.use("/api", PropertiesRouter);
 app.use("/api/admin", AdminManagementRouter);
 app.use("/api/categories", auth(Role.ADMIN), CategoryRoutes);
-app.use("/api/Profile", ProfileRoutes);
+
 
 
 

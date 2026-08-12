@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-    "dev": "tsx watch ./src/server.ts",
-    "build": "tsup",
+  "scripts": {
+    "dev": "node init && tsx watch ./src/server.ts",
+    "build": "node init && tsup",
     "vercel-build": "prisma generate --schema=prisma/schema/schema.prisma && tsup",
-    "start": "node dist/server.js",
+    "start": "node init && node dist/server.js",
     "postinstall": "prisma generate --schema=prisma/schema/schema.prisma",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -42,6 +42,7 @@
     "express": "^5.2.1",
     "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.3",
+    "node-fetch": "^3.3.2",
     "pg": "^8.22.0",
     "stripe": "^22.3.0",
     "swagger-jsdoc": "^6.3.0",

@@ -91,7 +91,6 @@ const updateProfileIntoDB = async (userId: string, payload: IUpdateProfilePayloa
       id: true,
       name: true,
       email: true,
-      phoneNumber: true,
       profilePhoto: true,
       role: true,
       activeStatus: true,
